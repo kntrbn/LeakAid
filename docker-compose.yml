@@ -1,0 +1,7 @@
+# 環境変数は .env から読み込む
+services:
+  worker:
+    build: .
+    env_file:
+      - .env
+    restart: unless-stopped

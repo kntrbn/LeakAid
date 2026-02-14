@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+__pycache__/
+.venv/
+venv/
+env/
+
+# Secrets / env
+# .env
+.env.local
+*.tfvars
+!*.tfvars.example
+*.pem
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Build / cache
+dist/
+build/
+*.egg-info/
+.cache/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Logs
+*.log
+logs/
