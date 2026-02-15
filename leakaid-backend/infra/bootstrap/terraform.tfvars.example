@@ -1,8 +1,0 @@
-# =============================================================================
-# Bootstrap 用変数例（コピーして terraform.tfvars にリネーム）
-# =============================================================================
-
-project_id       = "your-gcp-project-id"
-bucket_name      = "leakaid-tfstate"
-bucket_location = "asia-northeast1"
-region           = "asia-northeast1"

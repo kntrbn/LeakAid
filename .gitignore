@@ -16,10 +16,17 @@ dist/
 build/
 *.egg-info/
 .cache/
+.next/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
 
 # IDE / OS
 .idea/
 .vscode/
+.claude/
 .DS_Store
 *.swp
 *.swo
@@ -27,3 +34,5 @@ build/
 # Logs
 *.log
 logs/
+
+videos/

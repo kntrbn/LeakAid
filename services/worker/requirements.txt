@@ -1,0 +1,8 @@
+temporalio>=1.5.0
+python-dotenv>=1.0.0
+pydantic-ai>=0.2.0
+playwright>=1.40.0
+playwright-stealth>=2.0.0
+2captcha-python>=1.5.0
+datadog-api-client>=2.20.0
+google-cloud-storage>=2.14.0

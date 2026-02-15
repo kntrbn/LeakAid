@@ -1,7 +1,68 @@
 # 環境変数は .env から読み込む
 services:
   worker:
-    build: .
+    build: ./services/worker
     env_file:
       - .env
+    shm_size: '2gb'
     restart: unless-stopped
+    profiles:
+      - prod
+
+  worker-dev:
+    build: ./services/worker
+    env_file:
+      - .env
+    shm_size: '2gb'
+    volumes:
+      - ./services/worker/connect.py:/app/connect.py
+      - ./services/worker/temporal:/app/temporal
+      - ./services/worker/test_intake.py:/app/test_intake.py
+      - ./videos:/app/videos
+      - ./logs:/app/logs
+
+  api:
+    build: ./services/api
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    profiles:
+      - prod
+
+  api-dev:
+    build: ./services/api
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/api/main.py:/app/main.py
+      - ./services/api/routers:/app/routers
+
+  frontend:
+    build:
+      context: ./services/frontend
+      args:
+        - NEXT_PUBLIC_API_URL=http://api:8000
+        - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+        - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    profiles:
+      - prod
+
+  frontend-dev:
+    build:
+      context: ./services/frontend
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8000
+        - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+        - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./services/frontend/src:/app/src
