@@ -3,8 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LeakAid — あなたの画像を、あなたの意思で取り下げる</title>
-  <meta name="description" content="非同意で拡散された画像の削除申請を支援するサービス。まずは無料でご相談ください。" />
+  <title>LeakAid — ネットに拡散された画像の削除申請をAIがサポート</title>
+  <meta name="description" content="同意なく拡散された画像の削除申請をAIがサポート。スマホからチャットするだけ。誰にも知られず、いますぐ対応を開始できます。" />
+  <meta name="keywords" content="画像削除,削除申請,リベンジポルノ,非同意性的画像,画像取り下げ,ネット画像削除,削除依頼,拡散された画像" />
+  <link rel="canonical" href="https://www.leakaid.me/" />
+  <!-- OGP -->
+  <meta property="og:title" content="LeakAid — ネットに拡散された画像の削除申請をAIがサポート" />
+  <meta property="og:description" content="同意なく拡散された画像の削除申請をAIがサポート。スマホからチャットするだけ。誰にも知られず、いますぐ対応を開始できます。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.leakaid.me/" />
+  <meta property="og:locale" content="ja_JP" />
+  <meta property="og:site_name" content="LeakAid" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="LeakAid — ネットに拡散された画像の削除申請をAIがサポート" />
+  <meta name="twitter:description" content="同意なく拡散された画像の削除申請をAIがサポート。スマホからチャットするだけ。" />
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "LeakAid",
+    "url": "https://www.leakaid.me",
+    "description": "同意なく拡散された画像の削除申請をAIがサポートするサービス",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "JPY",
+      "description": "先行登録無料"
+    }
+  }
+  </script>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZHVZ15N203"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-ZHVZ15N203');
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet" />
@@ -108,6 +147,28 @@
       transition: background .2s, transform .15s;
     }
     .hero-form button:hover { background: #1b262c; transform: translateY(-1px); }
+    .hero-features {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+    .hero-features span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .85rem;
+      color: #555;
+      font-weight: 500;
+    }
+    .hero-features svg {
+      stroke: #0f4c75;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
     .form-msg {
       margin-top: 16px;
       font-size: .9rem;
@@ -115,50 +176,6 @@
     }
     .form-msg.success { color: #0f4c75; }
     .form-msg.error { color: #c0392b; }
-
-    /* ===== Trust Signals ===== */
-    .trust {
-      padding: 80px 24px;
-      background: #fff;
-    }
-    .trust-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 32px;
-      max-width: 960px;
-      margin: 0 auto;
-    }
-    .trust-card {
-      text-align: center;
-      padding: 32px 16px;
-    }
-    .trust-card .icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 56px; height: 56px;
-      margin: 0 auto 20px;
-      background: #e8f4f8;
-      border-radius: 14px;
-    }
-    .trust-card .icon svg {
-      width: 28px; height: 28px;
-      stroke: #0f4c75;
-      stroke-width: 1.8;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    .trust-card h3 {
-      font-size: 1rem; font-weight: 700;
-      margin-bottom: 8px;
-      color: #16213e;
-    }
-    .trust-card p {
-      font-size: .875rem;
-      color: #666;
-      line-height: 1.7;
-    }
 
     /* ===== Steps ===== */
     .steps {
@@ -202,51 +219,188 @@
       line-height: 1.7;
     }
 
-    /* ===== FAQ ===== */
-    .faq {
+    /* ===== Bottom CTA ===== */
+    .cta {
+      padding: 80px 24px;
+      background: #16213e;
+      color: #fff;
+      text-align: center;
+    }
+    .cta h2 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+      margin-bottom: 32px;
+    }
+    .cta .hero-form input[type="email"] {
+      border-color: rgba(255,255,255,.2);
+      background: rgba(255,255,255,.08);
+      color: #fff;
+    }
+    .cta .hero-form input[type="email"]::placeholder { color: rgba(255,255,255,.45); }
+    .cta .hero-form input[type="email"]:focus { border-color: rgba(255,255,255,.5); }
+    .cta .hero-form button {
+      background: #bbe1fa;
+      color: #16213e;
+    }
+    .cta .hero-form button:hover { background: #d4edfc; }
+    .cta .form-msg.success { color: #bbe1fa; }
+    .cta .form-msg.error { color: #f87171; }
+
+    /* ===== Mockups ===== */
+    .mockups {
       padding: 80px 24px;
       background: #fff;
     }
-    .faq h2 {
+    .mockups h2 {
       font-family: 'Noto Serif JP', serif;
       font-size: clamp(1.25rem, 3.5vw, 1.75rem);
       text-align: center;
       color: #16213e;
-      margin-bottom: 48px;
+      margin-bottom: 56px;
     }
-    .faq-list {
-      max-width: 680px;
+    .mockups-grid {
+      display: flex;
+      gap: 48px;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      max-width: 700px;
       margin: 0 auto;
     }
-    .faq-item {
-      border-bottom: 1px solid #eee;
-      padding: 24px 0;
+    .phone {
+      width: 280px;
+      background: #1a1a2e;
+      border-radius: 36px;
+      padding: 12px;
+      box-shadow: 0 24px 48px rgba(0,0,0,.15);
     }
-    .faq-item summary {
+    .phone-screen {
+      background: #fff;
+      border-radius: 24px;
+      overflow: hidden;
+      min-height: 480px;
+    }
+    .phone-header {
+      background: #16213e;
+      color: #fff;
+      padding: 16px 20px;
+      font-size: .85rem;
       font-weight: 700;
-      font-size: 1rem;
-      color: #16213e;
-      cursor: pointer;
-      list-style: none;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
-    .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after {
-      content: '+';
-      font-size: 1.25rem;
+    .phone-header .dot {
+      width: 8px; height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+    }
+    /* Chat mockup */
+    .chat-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .chat-bubble {
+      max-width: 85%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: .8rem;
+      line-height: 1.6;
+    }
+    .chat-bubble.ai {
+      background: #f0f4f8;
+      color: #1a1a2e;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .chat-bubble.user {
+      background: #0f4c75;
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-input-mock {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      border-top: 1px solid #eee;
+    }
+    .chat-input-mock span {
+      flex: 1;
+      background: #f5f5f5;
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-size: .75rem;
       color: #999;
-      transition: transform .2s;
     }
-    .faq-item[open] summary::after {
-      content: '\2212';
+    .chat-input-mock .send-btn {
+      width: 32px; height: 32px;
+      background: #0f4c75;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .faq-item .answer {
-      margin-top: 12px;
-      font-size: .925rem;
-      color: #555;
-      line-height: 1.8;
+    .chat-input-mock .send-btn svg {
+      width: 14px; height: 14px;
+      stroke: #fff;
+      stroke-width: 2;
+      fill: none;
+    }
+    /* Dashboard mockup */
+    .dash-body {
+      padding: 16px;
+    }
+    .dash-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .dash-item:last-child { border-bottom: none; }
+    .dash-status {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dash-status.done { background: #4ade80; }
+    .dash-status.pending { background: #fbbf24; }
+    .dash-status.waiting { background: #d1d5db; }
+    .dash-info {
+      flex: 1;
+    }
+    .dash-info .site {
+      font-size: .8rem;
+      font-weight: 700;
+      color: #16213e;
+    }
+    .dash-info .detail {
+      font-size: .7rem;
+      color: #999;
+      margin-top: 2px;
+    }
+    .dash-label {
+      font-size: .65rem;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 10px;
+    }
+    .dash-label.done { background: #ecfdf5; color: #059669; }
+    .dash-label.pending { background: #fffbeb; color: #d97706; }
+    .dash-label.waiting { background: #f3f4f6; color: #6b7280; }
+    .mockup-caption {
+      text-align: center;
+      margin-top: 16px;
+      font-size: .8rem;
+      color: #999;
+      font-weight: 500;
+    }
+    @media (max-width: 600px) {
+      .mockups-grid { gap: 32px; }
+      .phone { width: 260px; }
     }
 
     /* ===== Footer ===== */
@@ -263,7 +417,7 @@
     /* ===== Responsive ===== */
     @media (max-width: 600px) {
       .hero { padding: 140px 20px 72px; }
-      .trust, .steps, .faq { padding: 56px 20px; }
+      .steps, .mockups, .cta { padding: 56px 20px; }
       .hero-form { flex-direction: column; }
       .hero-form input[type="email"],
       .hero-form button { width: 100%; }
@@ -273,14 +427,15 @@
 <body>
 
   <!-- Nav -->
-  <nav>
+  <nav aria-label="メインナビゲーション">
     <div class="inner">
-      <span class="logo">LeakAid</span>
+      <a class="logo" href="/">LeakAid</a>
       <span class="badge">先行登録受付中</span>
     </div>
   </nav>
 
   <!-- Hero -->
+  <main>
   <section class="hero">
     <div class="container">
       <h1 class="serif">あなたの画像を、<br />あなたの意思で取り下げる。</h1>
@@ -293,40 +448,88 @@
         <button type="submit">登録する</button>
       </form>
       <p class="form-msg" id="form-msg"></p>
+      <div class="hero-features">
+        <span><svg viewBox="0 0 24 24" width="16" height="16"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>いますぐ</span>
+        <span><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>誰にも知られず</span>
+        <span><svg viewBox="0 0 24 24" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>テキストを送るだけ</span>
+      </div>
     </div>
   </section>
 
-  <!-- Trust Signals -->
-  <section class="trust">
-    <div class="trust-grid">
-      <div class="trust-card">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </span>
-        <h3>無料で相談可能</h3>
-        <p>初回相談は無料。まずはお気軽にお問い合わせください。</p>
+  <!-- Mockups -->
+  <section class="mockups">
+    <h2 class="serif">スマホだけで、すべて完結</h2>
+    <div class="mockups-grid">
+
+      <!-- Chat mockup -->
+      <div>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-header">
+              <span class="dot"></span>LeakAid AI
+            </div>
+            <div class="chat-body">
+              <div class="chat-bubble ai">こんにちは。削除したい画像について教えてください。URLはありますか？</div>
+              <div class="chat-bubble user">はい、このURLです。SNSに勝手に載せられました。</div>
+              <div class="chat-bubble ai">確認しました。このプラットフォームでは「非同意の親密な画像」として削除申請が可能です。申請を進めますか？</div>
+              <div class="chat-bubble user">お願いします。</div>
+              <div class="chat-bubble ai">削除申請を作成中です...</div>
+            </div>
+            <div class="chat-input-mock">
+              <span>メッセージを入力...</span>
+              <div class="send-btn"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+            </div>
+          </div>
+        </div>
+        <p class="mockup-caption">AIチャット</p>
       </div>
-      <div class="trust-card">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        </span>
-        <h3>個人情報を厳重に管理</h3>
-        <p>ご提供いただいた情報は暗号化し、削除申請以外の目的では使用しません。</p>
+
+      <!-- Dashboard mockup -->
+      <div>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-header">
+              <span class="dot"></span>進捗ダッシュボード
+            </div>
+            <div class="dash-body">
+              <div class="dash-item">
+                <span class="dash-status done"></span>
+                <div class="dash-info">
+                  <div class="site">example-sns.com</div>
+                  <div class="detail">申請日: 3/28 — 削除完了: 3/29</div>
+                </div>
+                <span class="dash-label done">削除済み</span>
+              </div>
+              <div class="dash-item">
+                <span class="dash-status pending"></span>
+                <div class="dash-info">
+                  <div class="site">photo-board.net</div>
+                  <div class="detail">申請日: 3/28 — 審査中</div>
+                </div>
+                <span class="dash-label pending">対応中</span>
+              </div>
+              <div class="dash-item">
+                <span class="dash-status waiting"></span>
+                <div class="dash-info">
+                  <div class="site">upload-site.com</div>
+                  <div class="detail">申請日: 3/29 — 送信済み</div>
+                </div>
+                <span class="dash-label waiting">送信済み</span>
+              </div>
+              <div class="dash-item">
+                <span class="dash-status done"></span>
+                <div class="dash-info">
+                  <div class="site">image-host.jp</div>
+                  <div class="detail">申請日: 3/27 — 削除完了: 3/28</div>
+                </div>
+                <span class="dash-label done">削除済み</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="mockup-caption">進捗トラッキング</p>
       </div>
-      <div class="trust-card">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </span>
-        <h3>法的知見に基づく対応</h3>
-        <p>AIが関連法令・各プラットフォームのガイドラインに沿った適切な申請を自動生成します。</p>
-      </div>
-      <div class="trust-card">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </span>
-        <h3>24時間以内に対応</h3>
-        <p>ご相談受付後、24時間以内に状況を確認し対応方針をご案内します。</p>
-      </div>
+
     </div>
   </section>
 
@@ -336,88 +539,72 @@
     <div class="steps-grid">
       <div class="step">
         <div class="num">1</div>
-        <h3>URLを共有</h3>
-        <p>該当するURLや画像の情報を安全な方法で送信。内容は暗号化され厳重に保護されます。</p>
+        <h3>チャットで状況を整理</h3>
+        <p>AIとチャットしながら、状況や該当URLを共有します。</p>
       </div>
       <div class="step">
         <div class="num">2</div>
-        <h3>AIが自動で削除申請</h3>
-        <p>AIが各プラットフォームの規約・法律に基づき、最適な削除申請を自動で作成・送信します。</p>
+        <h3>削除申請を自動作成</h3>
+        <p>各プラットフォームの規約に基づき、削除申請の作成・送信をサポートします。</p>
       </div>
       <div class="step">
         <div class="num">3</div>
         <h3>進捗をリアルタイム追跡</h3>
-        <p>申請状況をダッシュボードで確認できます。対応が難しい場合も、次の選択肢をご提案します。</p>
+        <p>申請状況をダッシュボードで確認できます。</p>
       </div>
     </div>
   </section>
 
-  <!-- FAQ -->
-  <section class="faq">
-    <h2 class="serif">よくあるご質問</h2>
-    <div class="faq-list">
-      <details class="faq-item">
-        <summary>費用はかかりますか？</summary>
-        <div class="answer">
-          初回相談は無料です。具体的な削除申請のサポート費用については、サービス開始時に詳細をご案内いたします。先行登録自体に費用は一切かかりません。
-        </div>
-      </details>
-      <details class="faq-item">
-        <summary>海外のサイトにも対応できますか？</summary>
-        <div class="answer">
-          はい。主要な海外プラットフォームへの削除申請にも対応予定です。対応可能なサイトの範囲はサービス開始時に詳しくご案内いたします。
-        </div>
-      </details>
-      <details class="faq-item">
-        <summary>相談内容が外部に漏れることはありませんか？</summary>
-        <div class="answer">
-          ご相談内容は厳重に管理し、削除申請の目的以外には一切使用いたしません。通信はすべて暗号化され、AIによる自動処理のため人の目に触れることもありません。安心してご相談ください。
-        </div>
-      </details>
-    </div>
+  <!-- Bottom CTA -->
+  <section class="cta">
+    <h2 class="serif">サービス開始時にお知らせします</h2>
+    <form class="hero-form" id="waitlist-form-bottom" action="https://formspree.io/f/xbdporzg" method="POST">
+      <input type="email" name="email" placeholder="メールアドレス" required autocomplete="email" />
+      <button type="submit">登録する</button>
+    </form>
+    <p class="form-msg" id="form-msg-bottom"></p>
   </section>
+
+  </main>
 
   <!-- Footer -->
   <footer>
-    <p>&copy; 2026 LeakAid. All rights reserved.</p>
-    <p>
-      <a href="#privacy">プライバシーポリシー</a> ｜
-      <a href="#tokusho">特定商取引法に基づく表記</a>
-    </p>
-    <p style="margin-top: 16px; font-size: .75rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-      本サービスはプラットフォームへの削除申請を支援するものであり、削除を保証するものではありません。<br />
-      各プラットフォームの判断により、申請が受理されない場合があります。
-    </p>
+    <p>&copy; 2026 LeakAid</p>
+    <p>San Francisco, California</p>
   </footer>
 
   <script>
-    document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const msg = document.getElementById('form-msg');
-      const btn = form.querySelector('button');
-      btn.disabled = true;
-      btn.textContent = '送信中...';
-      try {
-        const res = await fetch(form.action, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { 'Accept': 'application/json' }
-        });
-        if (res.ok) {
-          msg.textContent = '登録ありがとうございます。サービス開始時にご連絡いたします。';
-          msg.className = 'form-msg success';
-          form.reset();
-        } else {
-          throw new Error();
+    function handleForm(formId, msgId) {
+      document.getElementById(formId).addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const msg = document.getElementById(msgId);
+        const btn = form.querySelector('button');
+        btn.disabled = true;
+        btn.textContent = '送信中...';
+        try {
+          const res = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { 'Accept': 'application/json' }
+          });
+          if (res.ok) {
+            msg.textContent = '登録ありがとうございます。サービス開始時にご連絡いたします。';
+            msg.className = 'form-msg success';
+            form.reset();
+          } else {
+            throw new Error('submit failed');
+          }
+        } catch {
+          msg.textContent = '送信に失敗しました。もう一度お試しください。';
+          msg.className = 'form-msg error';
         }
-      } catch {
-        msg.textContent = '送信に失敗しました。もう一度お試しください。';
-        msg.className = 'form-msg error';
-      }
-      btn.disabled = false;
-      btn.textContent = '登録する';
-    });
+        btn.disabled = false;
+        btn.textContent = '登録する';
+      });
+    }
+    handleForm('waitlist-form', 'form-msg');
+    handleForm('waitlist-form-bottom', 'form-msg-bottom');
   </script>
 </body>
 </html>
