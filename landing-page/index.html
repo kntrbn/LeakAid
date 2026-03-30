@@ -591,6 +591,10 @@
           if (res.ok) {
             msg.textContent = '登録ありがとうございます。サービス開始時にご連絡いたします。';
             msg.className = 'form-msg success';
+            gtag('event', 'waitlist_signup', {
+              event_category: 'conversion',
+              event_label: formId
+            });
             form.reset();
           } else {
             throw new Error('submit failed');
