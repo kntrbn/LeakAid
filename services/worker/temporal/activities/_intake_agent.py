@@ -10,23 +10,29 @@ from dataclasses import dataclass, field
 from pydantic_ai import Agent, RunContext
 
 REQUIRED_FIELDS = [
-    "is_self_shot",
-    "filming_consent",
-    "publishing_consent",
-    "age_at_filming",
-    "uploader_relationship",
-    "uploader_account_url",
-    "incident_context",
+    "removal_reason",
+    "content_detail",
+    "is_self",
+    "country",
+    "email",
+    "content_urls",
+    "search_result_urls",
+    "search_keywords",
+    "future_detection",
+    "future_similar_removal",
 ]
 
 FIELD_DESCRIPTIONS = {
-    "is_self_shot": "自撮りかどうか（true/false）",
-    "filming_consent": "撮影への同意があったか（true/false）",
-    "publishing_consent": "公開への同意があったか（true/false）",
-    "age_at_filming": "撮影時の年齢（整数）",
-    "uploader_relationship": "アップロード者との関係性（テキスト）",
-    "uploader_account_url": "アップロード者のアカウントURL（URLまたは「不明」）",
-    "incident_context": "被害の経緯詳細（テキスト）",
+    "removal_reason": "削除理由カテゴリ",
+    "content_detail": "コンテンツの詳細",
+    "is_self": "本人 or 代理人",
+    "country": "居住国",
+    "email": "連絡先メールアドレス",
+    "content_urls": "コンテンツの URL（複数可）",
+    "search_result_urls": "Google 検索結果ページの URL（複数可）",
+    "search_keywords": "検索キーワード（複数可）",
+    "future_detection": "今後も同じ画像の検出・削除を希望するか",
+    "future_similar_removal": "類似検索でも削除を希望するか",
 }
 
 
@@ -42,38 +48,62 @@ agent = Agent(
     "openai:gpt-4.1",
     deps_type=IntakeDeps,
     system_prompt=(
-        "あなたは画像・動画の削除依頼（リベンジポルノ等）に必要な情報をヒアリングするAIアシスタントです。\n"
+        "あなたは Google 検索結果からの個人コンテンツ削除申請に必要な情報をヒアリングする AI アシスタントです。\n"
         "被害に遭われた方に寄り添い、優しく丁寧なトーンで対応してください。\n"
         "\n"
         "## 収集するフィールド（この順番で1つずつ聞いてください）\n"
         "\n"
-        "1. is_self_shot - その画像/動画は自撮りですか？（はい/いいえ）\n"
-        "2. filming_consent - 撮影することに同意していましたか？（はい/いいえ）\n"
-        "3. publishing_consent - インターネットへの公開に同意していましたか？（はい/いいえ）\n"
-        "4. age_at_filming - 撮影された時の年齢は何歳でしたか？（数字）\n"
-        "5. uploader_relationship - アップロードした人とあなたの関係を教えてください"
-        "（例: 元交際相手、知人、不明など）\n"
-        "6. uploader_account_url - アップロードした人のSNSアカウントや"
-        "プロフィールのURLがわかれば教えてください（わからなければ「不明」で結構です）\n"
-        "7. incident_context - 被害の経緯を詳しく教えてください（自由記述）\n"
+        "1. removal_reason - Google 検索から個人的なコンテンツを削除したい理由:\n"
+        "   - ヌードや性的な内容が含まれている\n"
+        "   - 自分の個人情報が含まれている\n"
+        "   - 不当な削除方針を掲げているサイトに掲載されている\n"
+        "   - 18歳未満の人物が写っている\n"
+        "\n"
+        "2. content_detail - コンテンツの詳細（removal_reason が性的内容の場合）:\n"
+        "   - ヌードや性的行為、または親密な状態の自分が含まれている（リベンジポルノ含む）\n"
+        "   - 性的行為や親密な状態にある自分の描写が偽造されている（ディープフェイク）\n"
+        "   - 自分と性的なコンテンツが誤って結び付けられている\n"
+        "   - 18歳未満の人物を扱ったヌードや性的に露骨な表現が含まれている\n"
+        "   ※ removal_reason が性的内容以外の場合はスキップ可\n"
+        "\n"
+        "3. is_self - コンテンツに写っている人物は本人ですか？:\n"
+        "   - 「私です」\n"
+        "   - 「他の人です」（代理人の場合、本人からの許可が必要）\n"
+        "\n"
+        "4. country - 居住国\n"
+        "\n"
+        "5. email - 連絡先メールアドレス（リクエストに関するメール送信先）\n"
+        "\n"
+        "6. content_urls - コンテンツの URL（複数ある場合は全て）\n"
+        "\n"
+        "7. search_result_urls - Google 検索の検索結果ページの URL（複数可）\n"
+        "\n"
+        "8. search_keywords - 報告対象コンテンツを見つけた際の検索キーワード（複数可）\n"
+        "\n"
+        "9. future_detection - 今回報告された画像と同じ画像を、今後も検出して削除する対応を希望しますか？\n"
+        "   （はい/いいえ）\n"
+        "\n"
+        "10. future_similar_removal - 今後、類似する検索が行われた場合も、露骨な表現を含む検索結果を削除する対応を希望しますか？\n"
+        "    （はい/いいえ）\n"
         "\n"
         "## 手順\n"
-        "1. 最初に「これから申請に必要な情報を教えてください。」と伝え、最初の質問をする\n"
-        "2. ユーザーの回答を受け取ったら save_field ツールで値を保存する\n"
-        "3. 次の未収集フィールドについて質問する\n"
-        "4. 全フィールド収集後、内容を箇条書きで要約し「以上の内容でよろしいですか？」と確認する\n"
-        "5. ユーザーが確認OKと言ったら complete_intake ツールを呼び出す\n"
-        "6. 修正依頼があれば該当フィールドを save_field で上書きする\n"
+        "1. 最初に挨拶し、最初の質問をする\n"
+        "2. ユーザーの回答を save_field で保存し、次の質問へ\n"
+        "3. 全フィールド収集後、内容を箇条書きで要約し確認する\n"
+        "4. 確認 OK なら complete_intake を呼ぶ\n"
+        "5. 修正依頼があれば save_field で上書きする\n"
         "\n"
-        "## 質問への対応\n"
-        "- ユーザーが質問の意味を聞いてきた場合: わかりやすく説明し、再度同じ質問をする\n"
-        "- 申請に関係のない質問・雑談: "
-        "「申請に必要な情報に関するご質問のみお答えできます。」と伝える\n"
-        "- ユーザーが「わからない」と言った場合: 「不明」として保存する\n"
+        "## 画像検索結果について\n"
+        "- 画像検索結果が提供された場合、見つかったページ URL を番号付きリストで提示する\n"
+        "- ユーザーに該当する URL を番号で選んでもらう\n"
+        "- 選択された URL を content_urls として save_field で保存する\n"
+        "- 該当なしの場合は手動で URL を入力してもらう\n"
         "\n"
         "## 重要\n"
         "- 一度に1つの質問だけをすること\n"
-        "- schema_version については聞かないこと\n"
+        "- 選択肢がある質問は選択肢を提示すること\n"
+        "- 「わからない」は「不明」として保存\n"
+        "- URL は複数入力可能であることを伝えること\n"
     ),
 )
 
@@ -85,10 +115,8 @@ async def save_field(
     """収集したフィールドの値を保存する。
 
     Args:
-        field_name: フィールド名（is_self_shot, filming_consent, publishing_consent,
-                    age_at_filming, uploader_relationship, uploader_account_url,
-                    incident_context のいずれか）
-        value: 保存する値（ブール値は "true"/"false"、年齢は数字の文字列）
+        field_name: フィールド名（REQUIRED_FIELDS のいずれか）
+        value: 保存する値
     """
     if field_name not in REQUIRED_FIELDS:
         return (
@@ -96,23 +124,19 @@ async def save_field(
             f"有効なフィールド: {', '.join(REQUIRED_FIELDS)}"
         )
 
-    # 型変換
-    if field_name in ("is_self_shot", "filming_consent", "publishing_consent"):
+    if field_name in ("future_detection", "future_similar_removal"):
         ctx.deps.collected[field_name] = value.lower() in (
-            "true",
-            "はい",
-            "yes",
-            "1",
+            "true", "はい", "yes", "1",
         )
-    elif field_name == "age_at_filming":
-        try:
-            ctx.deps.collected[field_name] = int(value)
-        except ValueError:
-            return f"エラー: 年齢は数字で入力してください。受け取った値: {value}"
     else:
         ctx.deps.collected[field_name] = value
 
     remaining = [f for f in REQUIRED_FIELDS if f not in ctx.deps.collected]
+    # content_detail は removal_reason が性的内容以外ならスキップ可
+    reason = ctx.deps.collected.get("removal_reason", "")
+    if "content_detail" in remaining and "ヌード" not in reason and "性的" not in reason:
+        remaining.remove("content_detail")
+
     if remaining:
         desc = ", ".join(FIELD_DESCRIPTIONS[f] for f in remaining)
         return f"'{field_name}' を保存しました。残り: {desc}"
@@ -133,7 +157,13 @@ async def get_progress(ctx: RunContext[IntakeDeps]) -> str:
 @agent.tool
 async def complete_intake(ctx: RunContext[IntakeDeps]) -> str:
     """全フィールド収集完了後、ユーザー確認を得てからヒアリングを完了させる。"""
-    missing = [f for f in REQUIRED_FIELDS if f not in ctx.deps.collected]
+    required = list(REQUIRED_FIELDS)
+    # content_detail は条件付き
+    reason = ctx.deps.collected.get("removal_reason", "")
+    if "ヌード" not in reason and "性的" not in reason:
+        required = [f for f in required if f != "content_detail"]
+
+    missing = [f for f in required if f not in ctx.deps.collected]
     if missing:
         return f"エラー: まだ未収集のフィールドがあります: {', '.join(missing)}"
 

@@ -10,14 +10,16 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from supabase import create_client as create_supabase_client
 from temporalio.client import Client
 
-from routers import intake
+from routers import intake, status
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """起動時に Temporal Client を接続し、アプリ全体で共有する。"""
+    """起動時に Temporal Client と Supabase Client を接続し、アプリ全体で共有する。"""
+    # Temporal
     host = os.getenv("TEMPORAL_HOST", "localhost")
     port = os.getenv("TEMPORAL_PORT", "7233")
     namespace = os.getenv("TEMPORAL_NAMESPACE", "default")
@@ -33,6 +35,15 @@ async def lifespan(app: FastAPI):
         connect_kwargs["api_key"] = api_key
 
     app.state.temporal = await Client.connect(**connect_kwargs)
+
+    # Supabase
+    supabase_url = os.getenv("SUPABASE_URL", os.getenv("NEXT_PUBLIC_SUPABASE_URL", ""))
+    supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+    if supabase_url and supabase_key:
+        app.state.supabase = create_supabase_client(supabase_url, supabase_key)
+    else:
+        app.state.supabase = None
+
     yield
 
 
@@ -52,6 +63,7 @@ app.add_middleware(
 )
 
 app.include_router(intake.router)
+app.include_router(status.router)
 
 
 @app.get("/health")

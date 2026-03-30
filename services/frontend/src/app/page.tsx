@@ -4,12 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatInput } from "@/components/ChatInput";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useAuth } from "@/components/AuthProvider";
-import { getResponse, getStatus, sendMessage, startIntake } from "@/lib/api";
+import { getResponse, getStatus, sendMessage, startIntake, uploadImage } from "@/lib/api";
 
 type Message = { role: "agent" | "user"; content: string };
 
 export default function ChatPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [workflowId, setWorkflowId] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(false);
@@ -30,7 +30,9 @@ export default function ChatPage() {
 
     (async () => {
       try {
-        const { workflow_id } = await startIntake(token);
+        const fullName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "";
+        const userName = fullName.split(" ")[0];
+        const { workflow_id } = await startIntake(token, userName);
         if (cancelled) return;
         setWorkflowId(workflow_id);
 
@@ -83,6 +85,37 @@ export default function ChatPage() {
     [workflowId, token, waiting]
   );
 
+  // 画像アップロード
+  const handleImageUpload = useCallback(
+    async (file: File) => {
+      if (!workflowId || !token || waiting) return;
+
+      setMessages((prev) => [...prev, { role: "user", content: `[画像: ${file.name}]` }]);
+      setWaiting(true);
+
+      try {
+        await uploadImage(workflowId, token, file);
+
+        // Cloud Vision の検索結果を含むエージェント応答を待つ
+        const response = await pollForNewResponse(
+          workflowId,
+          lastResponseRef.current,
+          token
+        );
+        lastResponseRef.current = response;
+        setMessages((prev) => [...prev, { role: "agent", content: response }]);
+
+        const { is_complete } = await getStatus(workflowId, token);
+        if (is_complete) setComplete(true);
+      } catch {
+        setError("画像のアップロードに失敗しました。再読み込みしてください。");
+      } finally {
+        setWaiting(false);
+      }
+    },
+    [workflowId, token, waiting]
+  );
+
   if (error) {
     return (
       <div className="flex h-full items-center justify-center p-6 text-center text-sm text-red-600">
@@ -116,7 +149,7 @@ export default function ChatPage() {
           ヒアリングが完了しました。ありがとうございました。
         </div>
       ) : (
-        <ChatInput onSend={handleSend} disabled={waiting || !workflowId} />
+        <ChatInput onSend={handleSend} onImageUpload={handleImageUpload} disabled={waiting || !workflowId} />
       )}
     </div>
   );

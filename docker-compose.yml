@@ -18,6 +18,7 @@ services:
       - ./services/worker/connect.py:/app/connect.py
       - ./services/worker/temporal:/app/temporal
       - ./services/worker/test_intake.py:/app/test_intake.py
+      - ./services/worker/test_cache_removal.py:/app/test_cache_removal.py
       - ./videos:/app/videos
       - ./logs:/app/logs
 

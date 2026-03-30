@@ -245,10 +245,21 @@ async def click_element(ctx: RunContext[BrowserDeps], text: str) -> str:
     """
     page = ctx.deps.page
     try:
-        element = page.get_by_text(text, exact=False).first
-        await element.click()
-        await asyncio.sleep(1)
-        return f"クリック完了: '{text}'"
+        elements = page.get_by_text(text, exact=False)
+        count = await elements.count()
+        # 可視要素を優先してクリック
+        for i in range(count):
+            el = elements.nth(i)
+            if await el.is_visible():
+                await el.click()
+                await asyncio.sleep(1)
+                return f"クリック完了: '{text}'"
+        # 可視要素がなければ force click
+        if count > 0:
+            await elements.first.click(force=True)
+            await asyncio.sleep(1)
+            return f"クリック完了（強制）: '{text}'"
+        return f"要素が見つかりません: '{text}'"
     except Exception as e:
         return f"クリックエラー ({text}): {e}"
 
@@ -379,12 +390,172 @@ async def take_screenshot(ctx: RunContext[BrowserDeps], description: str) -> str
     return f"スクリーンショット保存: {filepath}"
 
 
+async def get_page_elements(ctx: RunContext[BrowserDeps]) -> str:
+    """ページ上のインタラクティブ要素（入力欄・ボタン・ドロップダウン等）を一覧取得する。
+
+    各ページで最初に呼び出して、どの要素が操作可能か確認する。
+    フォームが複数ステップの場合、現在のページに存在する要素だけが返される。
+    """
+    page = ctx.deps.page
+    try:
+        elements = await page.evaluate("""() => {
+            const result = { radio_groups: [], selects: [], text_inputs: [], buttons: [], checkboxes: [] };
+
+            // ラジオボタン
+            const radioGroups = {};
+            document.querySelectorAll('input[type="radio"]').forEach(el => {
+                const name = el.name || el.id || 'unknown';
+                const label = el.closest('label')?.innerText?.trim()
+                    || el.parentElement?.innerText?.trim()
+                    || el.value;
+                if (!radioGroups[name]) radioGroups[name] = [];
+                if (label && label.length < 200) radioGroups[name].push(label);
+            });
+            // Material Design radio buttons
+            document.querySelectorAll('[role="radio"]').forEach(el => {
+                const group = el.closest('[role="radiogroup"]')?.getAttribute('aria-label') || 'group';
+                const label = el.innerText?.trim() || el.getAttribute('aria-label') || '';
+                if (!radioGroups[group]) radioGroups[group] = [];
+                if (label && label.length < 200) radioGroups[group].push(label);
+            });
+            for (const [name, options] of Object.entries(radioGroups)) {
+                if (options.length > 0) result.radio_groups.push({ name, options });
+            }
+
+            // セレクト（ドロップダウン）
+            document.querySelectorAll('select').forEach(el => {
+                const label = el.getAttribute('aria-label')
+                    || el.closest('label')?.innerText?.trim()
+                    || el.previousElementSibling?.innerText?.trim()
+                    || el.name || '';
+                const options = Array.from(el.options).map(o => o.text).filter(t => t.length < 200).slice(0, 20);
+                const selected = el.options[el.selectedIndex]?.text || '';
+                result.selects.push({ label, selected, options: options.slice(0, 10) });
+            });
+
+            // テキスト入力
+            document.querySelectorAll('input[type="text"], input[type="email"], input[type="url"], input[type="date"], textarea').forEach(el => {
+                if (el.offsetParent === null) return;  // 非表示はスキップ
+                const label = el.getAttribute('aria-label')
+                    || el.closest('label')?.innerText?.trim()
+                    || el.placeholder
+                    || el.name || '';
+                const type = el.type || 'text';
+                result.text_inputs.push({ label, type, value: el.value || '' });
+            });
+
+            // ボタン
+            document.querySelectorAll('button, input[type="submit"], [role="button"]').forEach(el => {
+                if (el.offsetParent === null) return;  // 非表示はスキップ
+                const text = el.innerText?.trim() || el.value || el.getAttribute('aria-label') || '';
+                if (text && text.length < 100) result.buttons.push(text);
+            });
+
+            // チェックボックス
+            document.querySelectorAll('input[type="checkbox"], [role="checkbox"]').forEach(el => {
+                const label = el.closest('label')?.innerText?.trim()
+                    || el.getAttribute('aria-label')
+                    || el.parentElement?.innerText?.trim() || '';
+                const checked = el.checked || el.getAttribute('aria-checked') === 'true';
+                if (label && label.length < 200) result.checkboxes.push({ label, checked });
+            });
+
+            return result;
+        }""")
+
+        lines = ["=== 現在のページの操作可能な要素 ==="]
+
+        if elements.get("radio_groups"):
+            lines.append("\n【ラジオボタン】")
+            for rg in elements["radio_groups"]:
+                lines.append(f"  グループ: {rg['name']}")
+                for opt in rg["options"]:
+                    lines.append(f"    - {opt}")
+
+        if elements.get("selects"):
+            lines.append("\n【ドロップダウン】")
+            for s in elements["selects"]:
+                lines.append(f"  {s['label']} (現在: {s['selected']})")
+
+        if elements.get("text_inputs"):
+            lines.append("\n【テキスト入力欄】")
+            for t in elements["text_inputs"]:
+                val = f" (入力済: {t['value']})" if t["value"] else ""
+                lines.append(f"  {t['label']} [{t['type']}]{val}")
+
+        if elements.get("checkboxes"):
+            lines.append("\n【チェックボックス】")
+            for c in elements["checkboxes"]:
+                state = "ON" if c["checked"] else "OFF"
+                lines.append(f"  [{state}] {c['label']}")
+
+        if elements.get("buttons"):
+            lines.append("\n【ボタン】")
+            for b in elements["buttons"]:
+                lines.append(f"  - {b}")
+
+        if not any(elements.get(k) for k in ["radio_groups", "selects", "text_inputs", "checkboxes", "buttons"]):
+            lines.append("\n操作可能な要素が見つかりませんでした。scroll_down で画面外の要素を表示してみてください。")
+
+        return "\n".join(lines)
+    except Exception as e:
+        return f"要素取得エラー: {e}"
+
+
 async def scroll_down(ctx: RunContext[BrowserDeps]) -> str:
     """ページを下にスクロールする（隠れている要素を表示するため）"""
     page = ctx.deps.page
     await page.evaluate("window.scrollBy(0, 500)")
     await asyncio.sleep(0.5)
     return "500px 下にスクロールしました"
+
+
+async def select_dropdown_option(
+    ctx: RunContext[BrowserDeps], label_text: str, option_value: str
+) -> str:
+    """HTML の <select> ドロップダウンからオプションを選択する。
+
+    Google Support フォーム等で使われる hidden な <select> にも対応。
+    JavaScript で直接値を設定し change イベントを発火する。
+
+    Args:
+        label_text: ドロップダウンのラベルテキスト（部分一致で検索）
+        option_value: 選択するオプションのテキスト（部分一致で検索）
+    """
+    page = ctx.deps.page
+    try:
+        result = await page.evaluate(
+            """([label, optionText]) => {
+                const selects = document.querySelectorAll('select');
+                for (const sel of selects) {
+                    const ariaLabel = (sel.getAttribute('aria-label') || '').replace(/<[^>]*>/g, '').trim();
+                    const name = sel.name || '';
+                    if (!ariaLabel.includes(label) && !name.includes(label)) continue;
+
+                    const opts = Array.from(sel.options);
+                    const match = opts.find(o =>
+                        o.text.includes(optionText) || o.value.includes(optionText)
+                    );
+                    if (!match) return { success: false, error: 'option_not_found', label: ariaLabel };
+
+                    sel.value = match.value;
+                    sel.dispatchEvent(new Event('change', { bubbles: true }));
+                    sel.dispatchEvent(new Event('input', { bubbles: true }));
+                    return { success: true, text: match.text };
+                }
+                return { success: false, error: 'select_not_found' };
+            }""",
+            [label_text, option_value],
+        )
+
+        if result["success"]:
+            await asyncio.sleep(0.5)
+            return f"ドロップダウン選択完了: '{label_text}' → '{result['text']}'"
+        if result["error"] == "option_not_found":
+            return f"オプションが見つかりません: '{option_value}' (select: {result.get('label', '')})"
+        return f"ドロップダウンが見つかりません: '{label_text}'"
+    except Exception as e:
+        return f"ドロップダウン選択エラー ({label_text}): {e}"
 
 
 async def solve_recaptcha(ctx: RunContext[BrowserDeps]) -> str:
