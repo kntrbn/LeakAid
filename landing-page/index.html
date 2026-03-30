@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeakAid — あなたの画像を、あなたの意思で取り下げる</title>
+  <meta name="description" content="非同意で拡散された画像の削除申請を支援するサービス。まずは無料でご相談ください。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      color: #1a1a2e;
+      background: #fafafa;
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ===== Utility ===== */
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    .serif { font-family: 'Noto Serif JP', serif; }
+    .text-center { text-align: center; }
+
+    /* ===== Nav ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      z-index: 100;
+      padding: 0 24px;
+    }
+    nav .inner {
+      max-width: 960px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    nav .logo {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      font-weight: 700; font-size: 1.3rem;
+      color: #16213e;
+      letter-spacing: -.02em;
+    }
+    nav .badge {
+      font-size: .75rem; font-weight: 500;
+      background: #e8f4f8; color: #0f4c75;
+      padding: 4px 14px; border-radius: 20px;
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      padding: 160px 24px 100px;
+      background: linear-gradient(170deg, #f0f4f8 0%, #fafafa 100%);
+      text-align: center;
+    }
+    .hero h1 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(1.75rem, 5vw, 2.75rem);
+      font-weight: 700;
+      line-height: 1.5;
+      color: #16213e;
+      margin-bottom: 24px;
+    }
+    .hero p {
+      font-size: clamp(.95rem, 2.5vw, 1.125rem);
+      color: #555;
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.9;
+    }
+    .hero-form {
+      display: flex;
+      gap: 12px;
+      max-width: 480px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-form input[type="email"] {
+      flex: 1 1 260px;
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-family: 'Noto Sans JP', sans-serif;
+      border: 2px solid #d0d5dd;
+      border-radius: 8px;
+      background: #fff;
+      color: #1a1a2e;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .hero-form input[type="email"]::placeholder { color: #999; }
+    .hero-form input[type="email"]:focus { border-color: #0f4c75; }
+    .hero-form button {
+      padding: 14px 32px;
+      font-size: 1rem; font-weight: 700;
+      font-family: 'Noto Sans JP', sans-serif;
+      background: #0f4c75;
+      color: #fff;
+      border: none; border-radius: 8px;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .hero-form button:hover { background: #1b262c; transform: translateY(-1px); }
+    .form-msg {
+      margin-top: 16px;
+      font-size: .9rem;
+      min-height: 1.5em;
+    }
+    .form-msg.success { color: #0f4c75; }
+    .form-msg.error { color: #c0392b; }
+
+    /* ===== Trust Signals ===== */
+    .trust {
+      padding: 80px 24px;
+      background: #fff;
+    }
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .trust-card {
+      text-align: center;
+      padding: 32px 16px;
+    }
+    .trust-card .icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px; height: 56px;
+      margin: 0 auto 20px;
+      background: #e8f4f8;
+      border-radius: 14px;
+    }
+    .trust-card .icon svg {
+      width: 28px; height: 28px;
+      stroke: #0f4c75;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .trust-card h3 {
+      font-size: 1rem; font-weight: 700;
+      margin-bottom: 8px;
+      color: #16213e;
+    }
+    .trust-card p {
+      font-size: .875rem;
+      color: #666;
+      line-height: 1.7;
+    }
+
+    /* ===== Steps ===== */
+    .steps {
+      padding: 80px 24px;
+      background: #f7f9fc;
+    }
+    .steps h2 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+      text-align: center;
+      color: #16213e;
+      margin-bottom: 56px;
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 40px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .step {
+      text-align: center;
+      padding: 0 8px;
+    }
+    .step .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 48px; height: 48px;
+      background: #0f4c75; color: #fff;
+      font-weight: 700; font-size: 1.125rem;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+    .step h3 {
+      font-size: 1.05rem; font-weight: 700;
+      margin-bottom: 8px;
+      color: #16213e;
+    }
+    .step p {
+      font-size: .875rem;
+      color: #666;
+      line-height: 1.7;
+    }
+
+    /* ===== FAQ ===== */
+    .faq {
+      padding: 80px 24px;
+      background: #fff;
+    }
+    .faq h2 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+      text-align: center;
+      color: #16213e;
+      margin-bottom: 48px;
+    }
+    .faq-list {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      border-bottom: 1px solid #eee;
+      padding: 24px 0;
+    }
+    .faq-item summary {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #16213e;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+';
+      font-size: 1.25rem;
+      color: #999;
+      transition: transform .2s;
+    }
+    .faq-item[open] summary::after {
+      content: '\2212';
+    }
+    .faq-item .answer {
+      margin-top: 12px;
+      font-size: .925rem;
+      color: #555;
+      line-height: 1.8;
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      padding: 40px 24px;
+      background: #f0f0f0;
+      text-align: center;
+      font-size: .8rem;
+      color: #999;
+    }
+    footer a { color: #666; text-decoration: underline; }
+    footer p + p { margin-top: 8px; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 600px) {
+      .hero { padding: 140px 20px 72px; }
+      .trust, .steps, .faq { padding: 56px 20px; }
+      .hero-form { flex-direction: column; }
+      .hero-form input[type="email"],
+      .hero-form button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="inner">
+      <span class="logo">LeakAid</span>
+      <span class="badge">先行登録受付中</span>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="serif">あなたの画像を、<br />あなたの意思で取り下げる。</h1>
+      <p>
+        同意なく拡散された画像の削除申請をサポートします。<br />
+        一人で抱え込む必要はありません。
+      </p>
+      <form class="hero-form" id="waitlist-form" action="https://formspree.io/f/xbdporzg" method="POST">
+        <input type="email" name="email" placeholder="メールアドレス" required autocomplete="email" />
+        <button type="submit">登録する</button>
+      </form>
+      <p class="form-msg" id="form-msg"></p>
+    </div>
+  </section>
+
+  <!-- Trust Signals -->
+  <section class="trust">
+    <div class="trust-grid">
+      <div class="trust-card">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        <h3>無料で相談可能</h3>
+        <p>初回相談は無料。まずはお気軽にお問い合わせください。</p>
+      </div>
+      <div class="trust-card">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <h3>個人情報を厳重に管理</h3>
+        <p>ご提供いただいた情報は暗号化し、削除申請以外の目的では使用しません。</p>
+      </div>
+      <div class="trust-card">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </span>
+        <h3>法的知見に基づく対応</h3>
+        <p>AIが関連法令・各プラットフォームのガイドラインに沿った適切な申請を自動生成します。</p>
+      </div>
+      <div class="trust-card">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <h3>24時間以内に対応</h3>
+        <p>ご相談受付後、24時間以内に状況を確認し対応方針をご案内します。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Steps -->
+  <section class="steps">
+    <h2 class="serif">3つのステップで削除申請をサポート</h2>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="num">1</div>
+        <h3>URLを共有</h3>
+        <p>該当するURLや画像の情報を安全な方法で送信。内容は暗号化され厳重に保護されます。</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3>AIが自動で削除申請</h3>
+        <p>AIが各プラットフォームの規約・法律に基づき、最適な削除申請を自動で作成・送信します。</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3>進捗をリアルタイム追跡</h3>
+        <p>申請状況をダッシュボードで確認できます。対応が難しい場合も、次の選択肢をご提案します。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <h2 class="serif">よくあるご質問</h2>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>費用はかかりますか？</summary>
+        <div class="answer">
+          初回相談は無料です。具体的な削除申請のサポート費用については、サービス開始時に詳細をご案内いたします。先行登録自体に費用は一切かかりません。
+        </div>
+      </details>
+      <details class="faq-item">
+        <summary>海外のサイトにも対応できますか？</summary>
+        <div class="answer">
+          はい。主要な海外プラットフォームへの削除申請にも対応予定です。対応可能なサイトの範囲はサービス開始時に詳しくご案内いたします。
+        </div>
+      </details>
+      <details class="faq-item">
+        <summary>相談内容が外部に漏れることはありませんか？</summary>
+        <div class="answer">
+          ご相談内容は厳重に管理し、削除申請の目的以外には一切使用いたしません。通信はすべて暗号化され、AIによる自動処理のため人の目に触れることもありません。安心してご相談ください。
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 LeakAid. All rights reserved.</p>
+    <p>
+      <a href="#privacy">プライバシーポリシー</a> ｜
+      <a href="#tokusho">特定商取引法に基づく表記</a>
+    </p>
+    <p style="margin-top: 16px; font-size: .75rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+      本サービスはプラットフォームへの削除申請を支援するものであり、削除を保証するものではありません。<br />
+      各プラットフォームの判断により、申請が受理されない場合があります。
+    </p>
+  </footer>
+
+  <script>
+    document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const msg = document.getElementById('form-msg');
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = '送信中...';
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          msg.textContent = '登録ありがとうございます。サービス開始時にご連絡いたします。';
+          msg.className = 'form-msg success';
+          form.reset();
+        } else {
+          throw new Error();
+        }
+      } catch {
+        msg.textContent = '送信に失敗しました。もう一度お試しください。';
+        msg.className = 'form-msg error';
+      }
+      btn.disabled = false;
+      btn.textContent = '登録する';
+    });
+  </script>
+</body>
+</html>
