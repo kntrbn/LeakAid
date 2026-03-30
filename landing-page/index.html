@@ -107,6 +107,13 @@
       color: #16213e;
       margin-bottom: 24px;
     }
+    .hero-subtitle {
+      font-size: clamp(1.05rem, 3vw, 1.4rem);
+      font-weight: 600;
+      color: #0f4c75;
+      letter-spacing: .04em;
+      margin: 0 auto 20px;
+    }
     .hero p {
       font-size: clamp(.95rem, 2.5vw, 1.125rem);
       color: #555;
@@ -147,28 +154,6 @@
       transition: background .2s, transform .15s;
     }
     .hero-form button:hover { background: #1b262c; transform: translateY(-1px); }
-    .hero-features {
-      display: flex;
-      gap: 24px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 32px;
-    }
-    .hero-features span {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: .85rem;
-      color: #555;
-      font-weight: 500;
-    }
-    .hero-features svg {
-      stroke: #0f4c75;
-      stroke-width: 1.8;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
     .form-msg {
       margin-top: 16px;
       font-size: .9rem;
@@ -176,6 +161,57 @@
     }
     .form-msg.success { color: #0f4c75; }
     .form-msg.error { color: #c0392b; }
+
+    /* ===== Trust ===== */
+    .trust {
+      padding: 80px 24px;
+      background: #fff;
+    }
+    .trust h2 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+      text-align: center;
+      color: #16213e;
+      margin-bottom: 56px;
+    }
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 40px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .trust-item {
+      text-align: center;
+      padding: 0 8px;
+    }
+    .trust-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px; height: 56px;
+      background: #f0f4f8;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+    .trust-icon svg {
+      stroke: #0f4c75;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .trust-item h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #16213e;
+      margin-bottom: 8px;
+    }
+    .trust-item p {
+      font-size: .875rem;
+      color: #666;
+      line-height: 1.7;
+    }
 
     /* ===== Steps ===== */
     .steps {
@@ -229,6 +265,11 @@
     .cta h2 {
       font-family: 'Noto Serif JP', serif;
       font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+      margin-bottom: 12px;
+    }
+    .cta-sub {
+      font-size: .9rem;
+      color: rgba(255,255,255,.6);
       margin-bottom: 32px;
     }
     .cta .hero-form input[type="email"] {
@@ -391,13 +432,6 @@
     .dash-label.done { background: #ecfdf5; color: #059669; }
     .dash-label.pending { background: #fffbeb; color: #d97706; }
     .dash-label.waiting { background: #f3f4f6; color: #6b7280; }
-    .mockup-caption {
-      text-align: center;
-      margin-top: 16px;
-      font-size: .8rem;
-      color: #999;
-      font-weight: 500;
-    }
     @media (max-width: 600px) {
       .mockups-grid { gap: 32px; }
       .phone { width: 260px; }
@@ -417,7 +451,7 @@
     /* ===== Responsive ===== */
     @media (max-width: 600px) {
       .hero { padding: 140px 20px 72px; }
-      .steps, .mockups, .cta { padding: 56px 20px; }
+      .steps, .mockups, .trust, .cta { padding: 56px 20px; }
       .hero-form { flex-direction: column; }
       .hero-form input[type="email"],
       .hero-form button { width: 100%; }
@@ -439,26 +473,18 @@
   <section class="hero">
     <div class="container">
       <h1 class="serif">あなたの画像を、<br />あなたの意思で取り下げる。</h1>
-      <p>
-        同意なく拡散された画像の削除申請をサポートします。<br />
-        一人で抱え込む必要はありません。
-      </p>
+      <p class="hero-subtitle">いますぐ、誰にも知られず、チャットするだけ。</p>
       <form class="hero-form" id="waitlist-form" action="https://formspree.io/f/xbdporzg" method="POST">
         <input type="email" name="email" placeholder="メールアドレス" required autocomplete="email" />
-        <button type="submit">登録する</button>
+        <button type="submit">無料で先行登録</button>
       </form>
       <p class="form-msg" id="form-msg"></p>
-      <div class="hero-features">
-        <span><svg viewBox="0 0 24 24" width="16" height="16"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>いますぐ</span>
-        <span><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>誰にも知られず</span>
-        <span><svg viewBox="0 0 24 24" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>チャットするだけ</span>
-      </div>
     </div>
   </section>
 
   <!-- Mockups -->
   <section class="mockups">
-    <h2 class="serif">スマホだけで、すべて完結</h2>
+    <h2 class="serif">スマホだけですべて完結</h2>
     <div class="mockups-grid">
 
       <!-- Chat mockup -->
@@ -481,7 +507,6 @@
             </div>
           </div>
         </div>
-        <p class="mockup-caption">AIチャット</p>
       </div>
 
       <!-- Dashboard mockup -->
@@ -527,9 +552,38 @@
             </div>
           </div>
         </div>
-        <p class="mockup-caption">進捗トラッキング</p>
       </div>
 
+    </div>
+  </section>
+
+  <!-- Trust -->
+  <section class="trust">
+    <div class="container">
+      <h2 class="serif">安心して利用できる理由</h2>
+      <div class="trust-grid">
+        <div class="trust-item">
+          <div class="trust-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3>対面・電話は不要</h3>
+          <p>人と顔を合わせる必要はありません。<br />すべてチャットだけで完結します。</p>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <h3>スマホだけでOK</h3>
+          <p>窓口への訪問は不要。<br />スマホひとつで、いつでも始められます。</p>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3>24時間いつでも対応</h3>
+          <p>AIが対応するので、時間を選びません。<br />思い立ったその時に始められます。</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -558,9 +612,10 @@
   <!-- Bottom CTA -->
   <section class="cta">
     <h2 class="serif">サービス開始時にお知らせします</h2>
+    <p class="cta-sub">登録は10秒。メールアドレスだけで完了します。</p>
     <form class="hero-form" id="waitlist-form-bottom" action="https://formspree.io/f/xbdporzg" method="POST">
       <input type="email" name="email" placeholder="メールアドレス" required autocomplete="email" />
-      <button type="submit">登録する</button>
+      <button type="submit">無料で先行登録</button>
     </form>
     <p class="form-msg" id="form-msg-bottom"></p>
   </section>
